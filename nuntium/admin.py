@@ -2,12 +2,12 @@ from django.contrib import admin
 from .models import  Message, WriteItInstance, OutboundMessage, MessageRecord, \
                             Answer, AnswerWebHook, NewAnswerNotificationTemplate, \
                             NewAnswerNotificationTemplate
-from popit.models import ApiInstance, Person
+from popolo.models import Person
 from django.forms.models import BaseInlineFormSet
 from mailit.models import MailItTemplate
 from django_object_actions import DjangoObjectActions
 from django.db.models import Q
-from .forms import WriteItInstanceCreateFormPopitUrl
+from .forms import WriteItInstanceCreateForm
 
 class PersonInline(admin.TabularInline):
     model=Person
@@ -23,7 +23,7 @@ class MailItTemplateInline(admin.TabularInline):
 
 
 class WriteItInstanceAdmin(admin.ModelAdmin):
-    form = WriteItInstanceCreateFormPopitUrl
+    form = WriteItInstanceCreateForm
     inlines = [
         MembershipInline,
         NewAnswerNotificationTemplateAdmin,
@@ -91,10 +91,6 @@ admin.site.register(OutboundMessage, OutboundMessageAdmin)
 class MessageRecordAdmin(admin.ModelAdmin):
     pass
 admin.site.register(MessageRecord, MessageRecordAdmin)
-
-class ApiInstanceAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(ApiInstance, ApiInstanceAdmin)
 
 class PersonAdmin(admin.ModelAdmin):
     pass

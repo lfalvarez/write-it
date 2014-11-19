@@ -3,8 +3,7 @@ from django.views.generic.edit import UpdateView, DeleteView
 from django.core.urlresolvers  import reverse
 from django.core.urlresolvers import reverse as original_reverse
 from ..models import WriteItInstance, Confirmation, OutboundMessage, Message, Moderation, Membership,\
-                            NewAnswerNotificationTemplate, ConfirmationTemplate, \
-                            WriteitInstancePopitInstanceRecord, Answer
+                            NewAnswerNotificationTemplate, ConfirmationTemplate, Answer
                         
 from .forms import WriteItInstanceBasicForm, WriteItInstanceAdvancedUpdateForm, \
                     NewAnswerNotificationTemplateForm, ConfirmationTemplateForm, \
@@ -22,7 +21,7 @@ from django.utils.decorators import method_decorator
 from contactos.models import Contact
 from contactos.forms import ContactCreateForm
 from mailit.forms import MailitTemplateForm
-from popit.models import Person, ApiInstance
+from popolo.models import Person
 from django.shortcuts import redirect
 from django.views.generic import View
 from django.views.generic.detail import SingleObjectMixin
@@ -147,19 +146,6 @@ class YourContactsView(UserSectionListView):
         context['form'] = ContactCreateForm(owner=self.request.user)
         return context
 
-class YourPopitApiInstances(ListView):
-    model = WriteitInstancePopitInstanceRecord
-    template_name = 'nuntium/profiles/your-popit-apis.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(YourPopitApiInstances, self).dispatch(*args, **kwargs)
-        
-    def get_queryset(self):
-        queryset = super(YourPopitApiInstances, self).get_queryset()
-        queryset = queryset.filter(writeitinstance__owner=self.request.user)
-        return queryset
-
 
 class YourInstancesView(UserSectionListView):
     model = WriteItInstance
@@ -214,22 +200,6 @@ class NewAnswerNotificationTemplateUpdateView(UpdateTemplateWithWriteitMixin):
 class ConfirmationTemplateUpdateView(UpdateTemplateWithWriteitMixin):
     form_class = ConfirmationTemplateForm
     model = ConfirmationTemplate
-
-from django.http import HttpResponse, HttpResponseForbidden
-
-class WriteItPopitUpdateView(View):
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(WriteItPopitUpdateView, self).dispatch(*args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        record = WriteitInstancePopitInstanceRecord.objects.get(id=kwargs.get('pk'))
-        if record.writeitinstance.owner != request.user:
-            return HttpResponseForbidden()
-        record.writeitinstance.\
-            relate_with_persons_from_popit_api_instance(record.popitapiinstance)
-        return HttpResponse('result')
 
 
 class MessagesPerWriteItInstance(DetailView, LoginRequiredMixin, WriteItInstanceOwnerMixin):

@@ -1,7 +1,7 @@
 from django.forms import ModelForm, Select
 from django.forms.models import ModelChoiceField
 from contactos.models import Contact
-from popit.models import Person
+from popolo.models import Person
 
 class ContactUpdateForm(ModelForm):
     class Meta:
@@ -10,7 +10,7 @@ class ContactUpdateForm(ModelForm):
 
 class SelectSinglePersonField(ModelChoiceField):
     def label_from_instance(self, obj):
-        return "%s (%s)" % (obj.name, obj.api_instance.url)
+        return "%s" % (obj.name)
 
 class ContactCreateForm(ModelForm):
     person = SelectSinglePersonField(queryset=Person.objects.all())

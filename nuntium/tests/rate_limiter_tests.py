@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from ..models import WriteItInstance, RateLimiter, Message
 from datetime import date
 from django.core.exceptions import ValidationError
-from popit.models import Person
+from popolo.models import Person
 from django.utils.translation import ugettext as _
 
 class RateLimiterTestCase(TestCase):

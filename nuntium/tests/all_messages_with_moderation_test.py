@@ -2,7 +2,7 @@
 from global_test_case import GlobalTestCase as TestCase
 from ..models import Message, WriteItInstance, \
                             Moderation
-from popit.models import Person
+from popolo.models import Person
 from django.core import mail
 
 class AllMessagesWithModerationInAWriteItInstances(TestCase):

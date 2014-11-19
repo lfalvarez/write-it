@@ -1,4 +1,4 @@
-from global_test_case import GlobalTestCase as TestCase, popit_load_data
+from global_test_case import GlobalTestCase as TestCase
 from django.core.urlresolvers  import reverse
 from django.core.urlresolvers import reverse as original_reverse
 from ...models import WriteItInstance
@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils.translation import activate
 from ..forms import WriteItInstanceBasicForm, WriteItInstanceAdvancedUpdateForm, \
                             WriteItInstanceCreateForm
-from popit.models import Person
+from popolo.models import Person
 from django.forms.models import model_to_dict
 from contactos.models import Contact
 from contactos.forms import ContactCreateForm
@@ -431,8 +431,7 @@ class CreateUserSectionInstanceTestCase(UserSectionTestCase):
         super(CreateUserSectionInstanceTestCase, self).setUp()
         self.user = User.objects.first()
         self.data = {
-            "name":'instance',
-            "popit_url":settings.TEST_POPIT_API_URL
+            "name":'instance'
         }
 
     def test_create_an_instance_form(self):
@@ -448,33 +447,6 @@ class CreateUserSectionInstanceTestCase(UserSectionTestCase):
         self.assertIn('class', attrs_for_name)
         self.assertEquals(attrs_for_name['class'], 'form-control')
         #everything ok until now
-        attrs_for_popit_url = form.fields['popit_url'].widget.attrs
-        self.assertIn('class', attrs_for_popit_url)
-        self.assertEquals(attrs_for_popit_url['class'], 'form-control')
-
-    @skipUnless(settings.LOCAL_POPIT, "No local popit running")
-    def test_save_the_instance_with_the_form(self):
-        popit_load_data()
-        form = WriteItInstanceCreateForm(data=self.data, owner=self.user)
-        instance = form.save()
-        self.assertTrue(instance)
-        self.assertEquals(instance.name, "instance")
-        self.assertEquals(instance.owner, self.user)
-        self.assertTrue(instance.persons.all())
-
-    @skipUnless(settings.LOCAL_POPIT, "No local popit running")
-    def test_post_to_create_an_instance(self):
-        popit_load_data()
-        your_instances_url = reverse('your-instances')
-        c = Client()
-        c.login(username=self.user.username, password='admin')
-        url = reverse('create_writeit_instance')
-        self.assertTrue(url)
-
-        response = c.post(url, data=self.data)
-        self.assertRedirects(response, your_instances_url)
-        instance = WriteItInstance.objects.get(Q(name='instance'), Q(owner=self.user))
-        self.assertTrue(instance.persons.all())
 
     def test_create_an_instance_get_not_logged(self):
         '''Create an instance get'''

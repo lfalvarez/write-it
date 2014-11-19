@@ -4,8 +4,8 @@ from ...models import Message, WriteItInstance
 from tastypie.test import ResourceTestCase, TestApiClient
 from django.contrib.auth.models import User
 from tastypie.models import ApiKey
-from popit.models import Person
-from global_test_case import GlobalTestCase as TestCase, popit_load_data
+from popolo.models import Person
+from global_test_case import GlobalTestCase as TestCase
 from django.utils.unittest import skip
 from django.conf import settings
 import re

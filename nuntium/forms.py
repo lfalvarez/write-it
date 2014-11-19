@@ -8,7 +8,7 @@ from .models import Message, WriteItInstance, OutboundMessage, \
 from contactos.models import Contact
 from django.forms import ValidationError
 from django.utils.translation import ugettext as _
-from popit.models import Person
+from popolo.models import Person
 from haystack.forms import SearchForm
 from django.utils.html import format_html
 from django.forms.util import flatatt
@@ -102,28 +102,19 @@ class PerInstanceSearchForm(SearchForm):
         super(PerInstanceSearchForm, self).__init__(*args, **kwargs)
         self.searchqueryset = self.searchqueryset.filter(writeitinstance=self.writeitinstance.id)
 
-class WriteItInstanceCreateFormPopitUrl(ModelForm):
-    popit_url = URLField(label=_('Url of the popit instance api'), \
-        help_text=_("Example: http://popit.master.ciudadanointeligente.org/api/"),
-        required=False)
 
+class WriteItInstanceCreateForm(ModelForm):
     class Meta:
         model = WriteItInstance
-        fields = ('owner', 'name', 'popit_url', \
+        fields = ('owner', 'name', \
             "moderation_needed_in_all_messages", \
             "allow_messages_using_form", \
             "rate_limiter", \
             "notify_owner_when_new_answer", \
             "autoconfirm_api_messages")
 
-    def relate_with_people(self):
-        if self.cleaned_data['popit_url']:
-            self.instance.load_persons_from_a_popit_api(
-                self.cleaned_data['popit_url']
-                )
-
     def save(self, commit=True):
-        instance = super(WriteItInstanceCreateFormPopitUrl, self)\
+        instance = super(WriteItInstanceCreateForm, self)\
             .save(commit=commit)
 
         if commit:

@@ -6,7 +6,7 @@ from ..models import WriteItInstance, Message
 from django.test.client import Client, RequestFactory
 from django.contrib.sites.models import Site
 from django.conf import settings
-from popit.models import Person
+from popolo.models import Person
 
 
 class MessagesPerPersonViewTestCase(TestCase):

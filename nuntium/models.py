@@ -2,7 +2,7 @@ from django.db.models.signals import post_save, pre_save
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from popit.models import Person, ApiInstance
+from popolo.models import Person
 from contactos.models import Contact
 from .plugins import OutputPlugin
 from django.contrib.contenttypes.models import ContentType
@@ -63,29 +63,6 @@ class WriteItInstance(models.Model):
     autoconfirm_api_messages = models.BooleanField(
         help_text=_("Messages pushed to the api should \
             be confirmed automatically"), default=True)
-
-    def relate_with_persons_from_popit_api_instance(self, popit_api_instance):
-        try:
-            popit_api_instance.fetch_all_from_api()
-        except:
-            popit_api_instance.delete()
-            return False
-        persons = Person.objects.filter(api_instance=popit_api_instance)
-        for person in persons:
-            Membership.objects.create(writeitinstance=self, person=person)
-
-        return True
-
-
-    def load_persons_from_a_popit_api(self, popit_url):
-        api_instance, created = ApiInstance.objects.get_or_create(url=popit_url)
-        success_relating_people = self.relate_with_persons_from_popit_api_instance(api_instance)
-
-        if success_relating_people:
-            record, created = WriteitInstancePopitInstanceRecord\
-                .objects.get_or_create(\
-                    writeitinstance=self,
-                    popitapiinstance=api_instance)
 
 
     def get_absolute_url(self):
@@ -453,8 +430,7 @@ def send_new_answer_payload(sender, instance, created, **kwargs):
                     'message_id':'/api/v1/message/{0}/'.\
                                     format(answer.message.id),
                     'content': answer.content,
-                    'person':answer.person.name,
-                    'person_id':answer.person.popit_url
+                    'person':answer.person.name
             }
             requests.post(webhook.url, data=payload)
 
@@ -799,16 +775,3 @@ post_save.connect(rate_limiting, sender=Message)
 from tastypie.models import create_api_key
 
 models.signals.post_save.connect(create_api_key, sender=User)
-
-
-class WriteitInstancePopitInstanceRecord(models.Model):
-    writeitinstance = models.ForeignKey(WriteItInstance)
-    popitapiinstance = models.ForeignKey(ApiInstance)
-    updated = models.DateTimeField(auto_now_add=True)
-    created = models.DateTimeField(auto_now=True, editable=False)
-
-    def __unicode__(self):
-        return "The people from {url} was loaded into {instance}".format(
-            url=self.popitapiinstance.url,\
-            instance=self.writeitinstance.__unicode__()
-            )

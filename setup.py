@@ -22,7 +22,6 @@ install_requires = ['Django',
 'django-celery',
 'django-autoslug',
 'pytz>=2013b',
-'popit-django',
 'django-admin-bootstrapped',
 'django-object-actions',
 'unidecode']

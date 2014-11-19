@@ -1,10 +1,10 @@
 # coding=utf-8
-from global_test_case import GlobalTestCase as TestCase, popit_load_data
+from global_test_case import GlobalTestCase as TestCase
 from django.core.urlresolvers  import reverse
 from ..models import WriteItInstance, Message, Membership, Confirmation, Moderation
 from ..views import MessageCreateForm, PerInstanceSearchForm
 from contactos.models import Contact, ContactType
-from popit.models import ApiInstance, Person
+from popolo.models import Person
 from django.utils.unittest import skipUnless
 from datetime import datetime
 from django.contrib.auth.models import User
@@ -16,8 +16,6 @@ class InstanceTestCase(TestCase):
 
     def setUp(self):
         super(InstanceTestCase,self).setUp()
-        self.api_instance1 = ApiInstance.objects.all()[0]
-        self.api_instance2 = ApiInstance.objects.all()[1]
         self.person1 = Person.objects.all()[0]
 
         self.owner = User.objects.all()[0]
@@ -101,132 +99,9 @@ class InstanceTestCase(TestCase):
         self.assertEquals(writeitinstance.persons.get(id=self.person1.id), self.person1)
         self.assertEquals(self.person1.writeit_instances.get(id=writeitinstance.id), writeitinstance)
 
-    @skipUnless(settings.LOCAL_POPIT, "No local popit running")
-    def test_create_an_instance_and_load_persons_from_an_api(self):
-        # We have a popit running locally using the 
-        # start_local_popit_api.bash script
-        popit_load_data()
-        #loading data into the popit-api
-        writeitinstance = WriteItInstance.objects.create(name='instance 1', slug='instance-1', owner=self.owner)
-
-        writeitinstance.load_persons_from_a_popit_api(settings.TEST_POPIT_API_URL)
-
-        self.assertEquals(writeitinstance.persons.all().count(), 2)
-
-        raton = Person.objects.get(name='Ratón Inteligente')
-        fiera = Person.objects.get(name="Fiera Feroz")
-
-        self.assertIn(raton, [r for r in writeitinstance.persons.all()])
-        self.assertIn(fiera, [r for r in writeitinstance.persons.all()])
-
-from ..models import WriteitInstancePopitInstanceRecord
-class PopitWriteitRelationRecord(TestCase):
-    '''
-    This set of tests are intended to solve the problem
-    of relating a writeit instance and a popit instance
-    in some for that does not force them to be 
-    1-1
-    '''
-
-    def setUp(self):
-        self.writeitinstance = WriteItInstance.objects.first()
-        self.api_instance =  ApiInstance.objects.first()
-        self.owner = User.objects.first()
-
-    def test_instanciate(self):
-        '''Instanciate a WriteitInstancePopitInstanceRelation'''
-        record = WriteitInstancePopitInstanceRecord\
-            .objects.create(
-                writeitinstance = self.writeitinstance,
-                popitapiinstance = self.api_instance
-            )
-
-        self.assertTrue(record)
-        self.assertEquals(record.writeitinstance, self.writeitinstance)
-        self.assertEquals(record.popitapiinstance, self.api_instance)
-        self.assertTrue(record.updated)
-        self.assertTrue(record.created)
-
-    def test_unicode(self):
-        '''A WriteitInstancePopitInstanceRelation has a __unicode__ method'''
-        record = WriteitInstancePopitInstanceRecord\
-            .objects.create(
-                writeitinstance = self.writeitinstance,
-                popitapiinstance = self.api_instance
-            )
-        expected_unicode = "The people from http://popit.org/api/v1 was loaded into instance 1"
-        self.assertEquals(record.__unicode__(), expected_unicode)
-
-
-
-    @skipUnless(settings.LOCAL_POPIT, "No local popit running")
-    def test_it_is_created_automatically_when_fetching_a_popit_instance(self):
-        '''create automatically a record when fetching a popit instance'''
-
-        popit_load_data()
-        #loading data into the popit-api
-        writeitinstance = WriteItInstance.objects.create(\
-            name='instance 1', \
-            slug='instance-1', \
-            owner=self.owner)
-
-        writeitinstance.load_persons_from_a_popit_api(settings.TEST_POPIT_API_URL)
-
-        popit_instance = ApiInstance.objects.get(url=settings.TEST_POPIT_API_URL)
-
-        record = WriteitInstancePopitInstanceRecord.objects.get(\
-            writeitinstance=writeitinstance,
-            popitapiinstance=popit_instance
-            )
-
-        self.assertTrue(record)
-        self.assertTrue(record.updated)
-        self.assertTrue(record.created)
-
-    def test_what_if_the_url_doesnt_exist(self):
-        '''It solves the problem when there is no popit api running'''
-        writeitinstance = WriteItInstance.objects.create(\
-            name='instance 1', \
-            slug='instance-1', \
-            owner=self.owner)
-
-        non_existing_url = "http://nonexisting.url"
-        writeitinstance.load_persons_from_a_popit_api("http://nonexisting.url")
-        popit_instance_count = ApiInstance.objects.filter(url="http://nonexisting.url").count()
-
-        self.assertFalse(popit_instance_count)
-        
-    @skipUnless(settings.LOCAL_POPIT, "No local popit running")
-    def test_it_should_be_able_to_update_twice(self):
-        '''It should be able to update all data twice'''
-        popit_load_data()
-        #loading data into the popit-api
-        writeitinstance = WriteItInstance.objects.create(\
-            name='instance 1', \
-            slug='instance-1', \
-            owner=self.owner)
-
-        writeitinstance.load_persons_from_a_popit_api(settings.TEST_POPIT_API_URL)
-
-        popit_instance = ApiInstance.objects.get(url=settings.TEST_POPIT_API_URL)
-
-        
-        writeitinstance.load_persons_from_a_popit_api(settings.TEST_POPIT_API_URL)
-
-        record = WriteitInstancePopitInstanceRecord.objects.get(\
-            writeitinstance=writeitinstance,
-            popitapiinstance=popit_instance
-            )
-
-        self.assertNotEqual(record.created, record.updated)
-
-
-
 class InstanceDetailView(TestCase):
     def setUp(self):
         super(InstanceDetailView, self).setUp()
-        self.api_instance1 = ApiInstance.objects.all()[0]
-        self.api_instance2 = ApiInstance.objects.all()[1]
         self.person1 = Person.objects.all()[0]
         self.writeitinstance1 = WriteItInstance.objects.all()[0]
         self.url = self.writeitinstance1.get_absolute_url()

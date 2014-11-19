@@ -3,7 +3,7 @@ from global_test_case import GlobalTestCase as TestCase
 from ..models import Message, WriteItInstance, \
                             Moderation, Confirmation, \
                             OutboundMessage
-from popit.models import Person
+from popolo.models import Person
 from django.core import mail
 from django.contrib.sites.models import Site
 from django.core.urlresolvers  import reverse

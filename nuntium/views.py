@@ -20,7 +20,7 @@ from contactos.models import Contact
 from contactos.forms import ContactCreateForm
 from django.http import Http404
 from mailit.forms import MailitTemplateForm
-from popit.models import Person
+from popolo.models import Person
 
 class HomeTemplateView(TemplateView):
     def get_context_data(self, **kwargs):

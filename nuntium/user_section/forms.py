@@ -9,14 +9,14 @@ from ..models import Message, WriteItInstance, OutboundMessage, \
 from contactos.models import Contact
 from django.forms import ValidationError, ModelChoiceField
 from django.utils.translation import ugettext as _
-from popit.models import Person
+from popolo.models import Person
 from haystack.forms import SearchForm
 from django.utils.html import format_html
 from django.forms.util import flatatt
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from itertools import chain
-from ..forms import WriteItInstanceCreateFormPopitUrl
+from ..forms import WriteItInstanceCreateForm
 
 
 class WriteItInstanceBasicForm(ModelForm):
@@ -85,15 +85,15 @@ class ConfirmationTemplateForm(ModelForm):
         self.writeitinstance = kwargs.pop("writeitinstance")
         super(ConfirmationTemplateForm, self).__init__(*args, **kwargs)
 
-class SimpleInstanceCreateFormPopitUrl(WriteItInstanceCreateFormPopitUrl):
+class SimpleInstanceCreateForm(WriteItInstanceCreateForm):
     class Meta:
         model = WriteItInstance
-        fields = ('owner', 'name', 'popit_url')
+        fields = ('owner', 'name')
 
-class WriteItInstanceCreateForm(WriteItInstanceCreateFormPopitUrl):
+class WriteItInstanceCreateForm(WriteItInstanceCreateForm):
     class Meta:
         model = WriteItInstance
-        fields = ('name', 'popit_url')
+        fields = ('name',)
         widgets = {
             'name': TextInput(attrs={'class': 'form-control'})
         }
@@ -102,7 +102,6 @@ class WriteItInstanceCreateForm(WriteItInstanceCreateFormPopitUrl):
         if 'owner' in kwargs:
             self.owner = kwargs.pop('owner')
         super(WriteItInstanceCreateForm, self).__init__(*args, **kwargs)
-        self.fields['popit_url'].widget.attrs['class'] = 'form-control'
 
     def save(self, commit=True):
         instance = super(WriteItInstanceCreateForm, self).save(commit=False)

@@ -3,7 +3,7 @@ from django.utils.unittest import skip
 from .. import MailChannel
 from contactos.models import Contact, ContactType
 from nuntium.models import Message, WriteItInstance, OutboundMessage, MessageRecord
-from popit.models import Person, ApiInstance
+from popolo.models import Person
 from nuntium.plugins import OutputPlugin
 from ..models import MailItTemplate
 from django.core import mail
@@ -73,7 +73,7 @@ class MailTemplateTestCase(TestCase):
         self.writeitinstance2.mailit_template.delete()
 
 
-        
+
         template = MailItTemplate.objects.create(writeitinstance=self.writeitinstance2)
 
         self.assertEquals(template.subject_template, "[WriteIT] Message: %(subject)s")
@@ -107,15 +107,15 @@ class MailSendingTestCase(TestCase):
         self.contact_type2 = ContactType.objects.create(name= 'Uninvented one',label_name='bzbzbzb')
         self.user = User.objects.all()[0]
         self.contact3 = Contact.objects.create(
-            person=self.person3, 
-            contact_type=self.channel.get_contact_type(), 
+            person=self.person3,
+            contact_type=self.channel.get_contact_type(),
             value= '123456789',
             owner=self.user)
         self.writeitinstance1 = WriteItInstance.objects.all()[0]
         self.writeitinstance2 = WriteItInstance.objects.all()[1]
         self.message = Message.objects.all()[0]
         self.outbound_message1 = OutboundMessage.objects.filter(message=self.message)[0]
-        self.message_to_another_contact = Message.objects.create(content = 'Content 1', 
+        self.message_to_another_contact = Message.objects.create(content = 'Content 1',
             subject='Subject 1', writeitinstance= self.writeitinstance2, persons = [self.person3])
         self.outbound_message2 = OutboundMessage.objects.filter(message=self.message_to_another_contact)[0]
 
@@ -202,7 +202,7 @@ class MailSendingTestCase(TestCase):
         outbound_message = OutboundMessage.objects.get(message=message,
                                                         contact=contact3
             )
-        
+
         result_of_sending = outbound_message.send()
         self.assertEquals(len(mail.outbox), 0)#because none has been sent
 
@@ -274,7 +274,7 @@ class SmtpErrorHandling(TestCase):
             send_mail.side_effect = SMTPResponseException(501,"")
 
             result_of_sending, fatal_error = self.channel.send(self.outbound_message1)
-        
+
 
             self.assertFalse(result_of_sending)
             self.assertTrue(fatal_error)
@@ -285,7 +285,7 @@ class SmtpErrorHandling(TestCase):
         with patch("django.core.mail.EmailMultiAlternatives.send") as send_mail:
             send_mail.side_effect = SMTPResponseException(502,"")
             result_of_sending, fatal_error = self.channel.send(self.outbound_message1)
-            
+
 
             self.assertFalse(result_of_sending)
             self.assertTrue(fatal_error)
@@ -299,11 +299,11 @@ class SmtpErrorHandling(TestCase):
             send_mail.side_effect = SMTPResponseException(503,"")
 
             result_of_sending, fatal_error = self.channel.send(self.outbound_message1)
-            
+
 
             self.assertFalse(result_of_sending)
             self.assertTrue(fatal_error)
-        
+
     def test_smpt_error_code_504(self):
         #to handle this kind of error
         #http://docs.python.org/2.7/library/smtplib.html#smtplib.SMTPResponseException
@@ -311,7 +311,7 @@ class SmtpErrorHandling(TestCase):
             send_mail.side_effect = SMTPResponseException(504,"")
 
             result_of_sending, fatal_error = self.channel.send(self.outbound_message1)
-            
+
 
             self.assertFalse(result_of_sending)
             self.assertTrue(fatal_error)
@@ -323,7 +323,7 @@ class SmtpErrorHandling(TestCase):
             send_mail.side_effect = SMTPResponseException(550,"")
 
             result_of_sending, fatal_error = self.channel.send(self.outbound_message1)
-            
+
 
             self.assertFalse(result_of_sending)
             self.assertTrue(fatal_error)
@@ -335,7 +335,7 @@ class SmtpErrorHandling(TestCase):
             send_mail.side_effect = SMTPResponseException(551,"")
 
             result_of_sending, fatal_error = self.channel.send(self.outbound_message1)
-            
+
 
             self.assertFalse(result_of_sending)
             self.assertTrue(fatal_error)
@@ -347,11 +347,11 @@ class SmtpErrorHandling(TestCase):
             send_mail.side_effect = SMTPResponseException(552,"")
 
             result_of_sending, fatal_error = self.channel.send(self.outbound_message1)
-            
+
 
             self.assertFalse(result_of_sending)
             self.assertFalse(fatal_error)
-    
+
     def test_extra_logging(self):
         with patch("django.core.mail.EmailMultiAlternatives.send") as send_mail:
             send_mail.side_effect = Exception("Hey this is an exception")
@@ -379,7 +379,7 @@ class MailitTemplateUpdateTestCase(UserSectionTestCase):
             'content_template':'hello there this is the content and you got this message',
             'content_html_template':'<tag>hello there this is the content and you got this message</tag>',
         }
-        form = MailitTemplateForm(data=data, 
+        form = MailitTemplateForm(data=data,
             writeitinstance=self.writeitinstance,
             instance=self.writeitinstance.mailit_template
             )
@@ -397,7 +397,7 @@ class MailitTemplateUpdateTestCase(UserSectionTestCase):
             'content_html_template':'<tag>hello there this is the content and you got this message</tag>',
         }
         with self.assertRaises(ValidationError) as error:
-            form = MailitTemplateForm(data=data, 
+            form = MailitTemplateForm(data=data,
                 #NO INSTANCE
                 #writeitinstance=self.writeitinstance,
                 #NO INSTANCE
@@ -420,14 +420,14 @@ class MailitTemplateUpdateTestCase(UserSectionTestCase):
         }
 
         response = c.post(url, data=data)
-        url = reverse('writeitinstance_template_update', 
+        url = reverse('writeitinstance_template_update',
             kwargs={'pk':self.writeitinstance.pk})
         self.assertRedirects(response, url)
 
 
-        self.assertEquals(self.writeitinstance.mailit_template.subject_template, 
+        self.assertEquals(self.writeitinstance.mailit_template.subject_template,
             data['subject_template'])
-        self.assertEquals(self.writeitinstance.mailit_template.content_template, 
+        self.assertEquals(self.writeitinstance.mailit_template.content_template,
             data['content_template'])
 
 

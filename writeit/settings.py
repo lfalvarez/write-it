@@ -147,10 +147,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social.apps.django_app.default',
-    
     'nuntium',
     'djangoplugins',
-    'popit',
+    'popolo',
     'south',
     'contactos',
     'mailit',
@@ -172,7 +171,7 @@ if TESTING:
     INSTALLED_APPS += (
         'django_nose',
         )
-    
+
 #SEARCH INDEX WITH SOLR
 if TESTING:
     HAYSTACK_CONNECTIONS = {
@@ -238,19 +237,6 @@ LOGGING = {
     }
 }
 
-# POPIT TESTING RELATED
-TEST_POPIT_API_HOST_IP   = '127.0.0.1'
-TEST_POPIT_API_PORT      = '3000'
-TEST_POPIT_API_SUBDOMAIN = 'popit-django-test'
-
-# We have our local popit instance for testing porpouses running using 
-# the bash file start_local_popit_api.bash
-# create the url to use for testing the database.
-# See http://xip.io/ for details on the domain used.
-TEST_POPIT_API_URL = "http://%s.%s.xip.io:%s/api" % ( TEST_POPIT_API_SUBDOMAIN,
-                                                      TEST_POPIT_API_HOST_IP,
-                                                      TEST_POPIT_API_PORT )
-
 
 #Email settings
 DEFAULT_FROM_EMAIL = 'mailer@example.com'
@@ -264,17 +250,17 @@ SEND_ALL_EMAILS_FROM_DEFAULT_FROM_EMAIL=False
 
 
 #CELERY CONFIGURATION
-import djcelery
-from celery.schedules import crontab
-djcelery.setup_loader()
+#import djcelery
+#from celery.schedules import crontab
+#djcelery.setup_loader()
 
-CELERYBEAT_SCHEDULE = {
+#CELERYBEAT_SCHEDULE = {
     # Executes every Monday morning at 7:30 A.M
-    'send-mails-every-2-minutes': {
-        'task': 'nuntium.tasks.send_mails_task',
-        'schedule': crontab(minute='*/2'),
-    },
-}  
+#    'send-mails-every-2-minutes': {
+#        'task': 'nuntium.tasks.send_mails_task',
+#        'schedule': crontab(minute='*/2'),
+#    },
+#}
 #Logs every incoming email??
 INCOMING_EMAIL_LOGGING = 'None'
 
@@ -296,7 +282,7 @@ AUTHENTICATION_BACKENDS = (
 
 if TESTING:
     from testing_settings import *
-    
+
 try:
     from local_settings import *
     INSTALLED_APPS += EXTRA_APPS

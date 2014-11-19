@@ -4,8 +4,8 @@ from ...models import Message, WriteItInstance, Confirmation
 from tastypie.test import ResourceTestCase, TestApiClient
 from django.contrib.auth.models import User
 from tastypie.models import ApiKey
-from popit.models import Person
-from global_test_case import GlobalTestCase as TestCase, popit_load_data
+from popolo.models import Person
+from global_test_case import GlobalTestCase as TestCase
 from django.utils.unittest import skip
 from django.conf import settings
 import re
@@ -93,7 +93,6 @@ class MessageResourceTestCase(ResourceTestCase):
         message_from_the_api = messages[0]
         message = Message.objects.get(id=messages[0]['id'])
         for person in message_from_the_api['people']:
-            self.assertIn('popit_url', person)
 
             self.assertIn(
                 Person.objects.get(id=person['id']), \
@@ -108,7 +107,7 @@ class MessageResourceTestCase(ResourceTestCase):
             'subject': 'new message',
             'content': 'the content thing',
             'writeitinstance': '/api/v1/instance/{0}/'.format(writeitinstance.id),
-            'persons': [writeitinstance.persons.all()[0].popit_url]
+            'persons': [writeitinstance.persons.all()[0].id]
         }
 
         url = '/api/v1/message/'
@@ -138,7 +137,29 @@ class MessageResourceTestCase(ResourceTestCase):
             'content': 'the content thing',
             'writeitinstance': '/api/v1/instance/{0}/'.format(writeitinstance.id),
             'persons': [
-            writeitinstance.persons.all()[0].popit_url,
+            writeitinstance.persons.all()[0].id,
+            -1
+            ]
+        }
+        url = '/api/v1/message/'
+        previous_amount_of_messages = Message.objects.count()
+        response = self.api_client.post(url, data = message_data, format='json', authentication=self.get_credentials())
+        self.assertHttpCreated(response)
+        the_message = Message.objects.get(author_name='Felipipoo')
+        outbound_messages = the_message.outboundmessage_set.all()
+        self.assertEquals(outbound_messages.count(), 1)
+        self.assertEquals(outbound_messages[0].contact.person,writeitinstance.persons.all()[0] )
+
+    def test_create_a_message_with_a_non_integer_as_persons_id(self):
+        '''Try to create a message with a non integer persons's id'''
+        writeitinstance = WriteItInstance.objects.all()[0]
+        message_data = {
+            'author_name' : 'Felipipoo',
+            'subject': 'new message',
+            'content': 'the content thing',
+            'writeitinstance': '/api/v1/instance/{0}/'.format(writeitinstance.id),
+            'persons': [
+            writeitinstance.persons.all()[0].id,
             'http://this.person.does.not.exist'
             ]
         }
@@ -151,6 +172,7 @@ class MessageResourceTestCase(ResourceTestCase):
         self.assertEquals(outbound_messages.count(), 1)
         self.assertEquals(outbound_messages[0].contact.person,writeitinstance.persons.all()[0] )
 
+
     def test_create_a_new_message_confirmated(self):
         writeitinstance = WriteItInstance.objects.all()[0]
         message_data = {
@@ -158,7 +180,7 @@ class MessageResourceTestCase(ResourceTestCase):
             'subject': 'new message',
             'content': 'the content thing',
             'writeitinstance': '/api/v1/instance/{0}/'.format(writeitinstance.id),
-            'persons': [writeitinstance.persons.all()[0].popit_url]
+            'persons': [writeitinstance.persons.all()[0].id]
         }
         url = '/api/v1/message/'
         response = self.api_client.post(url, data = message_data, format='json', authentication=self.get_credentials())

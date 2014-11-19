@@ -1,7 +1,7 @@
 from django.core.management import call_command
 from global_test_case import GlobalTestCase as TestCase
 from ..models import Message, WriteItInstance, OutboundMessage, MessageRecord
-from popit.models import Person, ApiInstance
+from popolo.models import Person
 from contactos.models import ContactType, Contact
 
 class SendMessagesTestCaseTestCase(TestCase):

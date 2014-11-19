@@ -18,7 +18,6 @@ before_script:
 env:
   - DJANGO_VERSION=1.6.1
 script:
-  - ./start_local_popit_api.bash
   - coverage run --source=nuntium,contactos,mailit manage.py test nuntium contactos mailit
   - coverage report -m
 after_script:

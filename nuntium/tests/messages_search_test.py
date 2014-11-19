@@ -14,7 +14,7 @@ from django.views.generic.edit import FormView
 from django.utils.unittest import skip
 from haystack.views import SearchView
 from django.utils.unittest import skip
-from popit.models import Person
+from popolo.models import Person
 
 
 class MessagesSearchTestCase(TestCase):

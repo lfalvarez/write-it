@@ -1,7 +1,6 @@
 from global_test_case import GlobalTestCase as TestCase
 from django.core.urlresolvers  import reverse
 from django.utils.translation import activate
-from popit.models import ApiInstance
 from ..models import WriteItInstance
 
 from django.test.client import Client
@@ -36,7 +35,6 @@ class HomeViewTestCase(TestCase):
 
     def test_list_instances(self):
         activate('en')
-        api_instance1 = ApiInstance.objects.all()[0]
         instance1 = WriteItInstance.objects.all()[0]
         url = reverse("home")
         response = self.client.get(url)

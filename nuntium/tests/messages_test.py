@@ -10,7 +10,7 @@ from contactos.models import Contact, ContactType
 from ..models import Message, WriteItInstance, \
                             OutboundMessage, MessageRecord, Confirmation, \
                             Moderation, NoContactOM
-from popit.models import Person, ApiInstance
+from popolo.models import Person
 from django.core.urlresolvers  import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
@@ -418,15 +418,12 @@ class MysqlTesting(UsingDbMixin, OriginalTestCase):
     def setUp(self):
         super(MysqlTesting,self).setUp()
         user = User.objects.create_user(username='admin', password='a')
-        popit_instance = ApiInstance.objects.create(
-            url='http://popit.ciudadanointeligente.org'
-            )
 
         self.writeitinstance1 = writeitinstance = WriteItInstance.objects.create(
             name='instance 1', 
             slug='instance-1',
             owner=user)
-        self.person1 = Person.objects.create(name='Pedro', api_instance=popit_instance)
+        self.person1 = Person.objects.create(name=u'Pedro')
 
 
     #This test was a bug agains mysql
@@ -477,15 +474,12 @@ class PostgresTesting(UsingDbMixin, OriginalTestCase):
     def setUp(self):
         super(PostgresTesting,self).setUp()
         user = User.objects.create_user(username='admin', password='a')
-        popit_instance = ApiInstance.objects.create(
-            url='http://popit.ciudadanointeligente.org'
-            )
 
         self.writeitinstance1 = writeitinstance = WriteItInstance.objects.create(
             name='instance 1', 
             slug='instance-1',
             owner=user)
-        self.person1 = Person.objects.create(name='Pedro', api_instance=popit_instance)
+        self.person1 = Person.objects.create(name=u'Pedro')
 
 
     #This test was a bug agains mysql

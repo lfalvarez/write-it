@@ -2,7 +2,7 @@ from global_test_case import GlobalTestCase as TestCase
 from nuntium.user_section.tests.user_section_views_tests import UserSectionTestCase
 from django.utils.unittest import skip
 from ..models import ContactType, Contact
-from popit.models import Person, ApiInstance
+from popolo.models import Person
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from django.core import mail
@@ -256,9 +256,9 @@ class ContactCreateFormAndViewTestCase(UserSectionTestCase):
         self.assertIsInstance(form.fields['person'], SelectSinglePersonField)
         self.assertIsInstance(form.fields['person'].widget, Select)
         rendered_field = form.fields['person'].widget.render(name='The name', value=None)
-        self.assertIn("Pedro (http://popit.org/api/v1)", rendered_field)
-        self.assertIn("Marcel (http://popit.mysociety.org/api/v1/)", rendered_field)
-        self.assertIn("Felipe (http://popit.mysociety.org/api/v1/)", rendered_field)
+        self.assertIn("Pedro", rendered_field)
+        self.assertIn("Marcel", rendered_field)
+        self.assertIn("Felipe", rendered_field)
 
 
         

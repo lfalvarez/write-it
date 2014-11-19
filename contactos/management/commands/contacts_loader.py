@@ -1,7 +1,7 @@
 # coding= utf-8
 from django.core.management.base import BaseCommand, CommandError
 from contactos.models import Contact, ContactType
-from popit.models import Person
+from popolo.models import Person
 from django.contrib.auth.models import User
 import csv
 

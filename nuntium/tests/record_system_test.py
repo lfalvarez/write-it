@@ -2,7 +2,7 @@ from global_test_case import GlobalTestCase as TestCase
 from django.utils.unittest import skip
 from ..models import Message, WriteItInstance, OutboundMessage, MessageRecord
 from django.contrib.contenttypes.models import ContentType
-from popit.models import Person, ApiInstance
+from popolo.models import Person
 from contactos.models import Contact, ContactType
 from django.utils.translation import ugettext as _
 import datetime

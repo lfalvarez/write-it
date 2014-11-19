@@ -13,6 +13,5 @@ celerybeat-schedule
 
 *.sublime-project
 *.sublime-workspace
-popit-api-for-testing
 src
 *.egg-info

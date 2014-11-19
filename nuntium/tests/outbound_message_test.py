@@ -7,7 +7,7 @@ from contactos.models import Contact, ContactType
 from ..models import Message, WriteItInstance, OutboundMessage,\
                              MessageRecord, OutboundMessagePluginRecord\
                             , OutboundMessageIdentifier, Answer
-from popit.models import Person, ApiInstance
+from popolo.models import Person
 from mock import patch
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -15,7 +15,6 @@ from django.contrib.contenttypes.models import ContentType
 class OutboundMessageTestCase(TestCase):
     def setUp(self):
         super(OutboundMessageTestCase,self).setUp()
-        self.api_instance1 = ApiInstance.objects.all()[0]
         self.contact1 = Contact.objects.all()[0]
         self.message = Message.objects.all()[0]
 

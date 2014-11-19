@@ -49,20 +49,14 @@
 - fields: {contact: 1, message: 4}
   model: nuntium.outboundmessage
   pk: 5
-- fields: {url: 'http://popit.org/api/v1'}
-  model: popit.apiinstance
+- fields: {name: Pedro, slug: pedro}
+  model: popolo.person
   pk: 1
-- fields: {url: 'http://popit.mysociety.org/api/v1/'}
-  model: popit.apiinstance
+- fields: {name: Marcel, slug: marcel}
+  model: popolo.person
   pk: 2
-- fields: {api_instance: 1, name: Pedro, popit_url: 'http://popit.mysociety.org/api/v1/persons/1', popit_id: '52bc7asdasd34567'}
-  model: popit.person
-  pk: 1
-- fields: {api_instance: 2, name: Marcel, popit_url: 'http://popit.mysociety.org/api/v1/persons/2', popit_id: '52bc7asdasd34568'}
-  model: popit.person
-  pk: 2
-- fields: {api_instance: 2, name: Felipe, popit_url: 'http://popit.mysociety.org/api/v1/persons/3', popit_id: '52bc7asdasd34569'}
-  model: popit.person
+- fields: {name: Felipe, slug: felipe}
+  model: popolo.person
   pk: 3
 - fields: {content: Public Answer,message: 2,person: 1}
   model: nuntium.answer

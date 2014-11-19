@@ -10,7 +10,7 @@ from django.conf.urls import url
 from tastypie import fields
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie import http
-from popit.models import Person
+from popolo.models import Person
 from contactos.models import Contact
 from tastypie.paginator import Paginator
 from django.http import Http404, HttpResponseBadRequest
@@ -35,15 +35,9 @@ class PersonResource(ModelResource):
         resource_name = 'person'
         authentication = ApiKeyAuthentication()
 
-    def dehydrate(self, bundle):
-        bundle.data['resource_uri'] = bundle.obj.popit_url
-        return bundle
-
 class WriteItInstanceResource(ModelResource):
     # I should add persons but the thing is that
     # it breaks some other tests and I'm running out of time
-    # so now you cannot create a writeit instance with persons
-    # just with a popit-instance =)
     # regards the lazy programmer
     class Meta:
         queryset = WriteItInstance.objects.all()
@@ -88,7 +82,8 @@ class WriteItInstanceResource(ModelResource):
     def add_persons_to_bundle(self, bundle):
         bundle.data['persons'] = []
         for person in bundle.obj.persons.all():
-            bundle.data['persons'].append(person.popit_url)
+            bundle.data['persons'].append(person.id)
+
         return bundle
 
     def hydrate(self, bundle):
@@ -98,8 +93,6 @@ class WriteItInstanceResource(ModelResource):
     def obj_create(self, bundle):
         bundle = super(WriteItInstanceResource, self).obj_create(bundle)
         instance = bundle.obj
-        if "popit-api" in bundle.data and bundle.data["popit-api"]:
-            instance.load_persons_from_a_popit_api(bundle.data["popit-api"])
         return bundle
 
 class AnswerResource(ModelResource):
@@ -160,10 +153,10 @@ class MessageResource(ModelResource):
                 person = Person.objects.get(id=filters['person'])
             except:
                 raise Http404("Person does not exist")
-        if 'person__popit_id' in filters:
+        if 'person__id' in filters:
             try:
-                person = Person.objects.get(popit_id=filters['person__popit_id'])
-            except ObjectDoesNotExist, e:
+                person = Person.objects.get(id=filters['person__id'])
+            except (ObjectDoesNotExist, ValueError) as e:
                 raise Http404("Person does not exist")
         if person:
             result['person'] = person
@@ -188,11 +181,11 @@ class MessageResource(ModelResource):
             for person in instance.persons.all():
                 persons.append(person)
         else:
-            for popit_url in bundle.data['persons']:
+            for remote_id in bundle.data['persons']:
                 try:
-                    person = Person.objects.get(popit_url=popit_url)
+                    person = Person.objects.get(id=remote_id)
                     persons.append(person)
-                except ObjectDoesNotExist:
+                except (ObjectDoesNotExist, ValueError) as e:
                     pass
         bundle.obj.persons = persons
         bundle.obj.confirmated = True
@@ -201,7 +194,7 @@ class MessageResource(ModelResource):
     def dehydrate(self, bundle):
         bundle.data['persons'] = []
         for person in bundle.obj.people:
-            bundle.data['persons'].append(person.popit_url)
+            bundle.data['persons'].append(person.id)
         return bundle
 
     def obj_create(self, bundle, **kwargs):

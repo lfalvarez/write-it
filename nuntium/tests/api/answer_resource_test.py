@@ -4,8 +4,8 @@ from ...models import Message, WriteItInstance
 from tastypie.test import ResourceTestCase, TestApiClient
 from django.contrib.auth.models import User
 from tastypie.models import ApiKey
-from popit.models import Person
-from global_test_case import GlobalTestCase as TestCase, popit_load_data
+from popolo.models import Person
+from global_test_case import GlobalTestCase as TestCase
 from django.utils.unittest import skip
 from django.conf import settings
 import re
@@ -89,9 +89,6 @@ class AnswersResourceTestCase(ResourceTestCase):
         self.assertEquals(person["id"], self.answer.person.id)
         self.assertEquals(person["image"], self.answer.person.image)
         self.assertEquals(person["name"], self.answer.person.name)
-        self.assertEquals(person["popit_id"], self.answer.person.popit_id)
-        self.assertEquals(person["popit_url"], self.answer.person.popit_url)
-        self.assertEquals(person["resource_uri"], self.answer.person.popit_url)
         self.assertEquals(person["summary"], self.answer.person.summary)
 
 

@@ -4,8 +4,8 @@ from ...models import Message, WriteItInstance, Confirmation
 from tastypie.test import ResourceTestCase, TestApiClient
 from django.contrib.auth.models import User
 from tastypie.models import ApiKey
-from popit.models import Person
-from global_test_case import GlobalTestCase as TestCase, popit_load_data
+from popolo.models import Person
+from global_test_case import GlobalTestCase as TestCase
 from django.utils.unittest import skip, skipUnless
 from django.conf import settings
 import re
@@ -62,7 +62,6 @@ class InstanceResourceTestCase(ResourceTestCase):
         instance = self.deserialize(response)
         self.assertIn('persons', instance)
         pedro = Person.objects.all()[0]
-        self.assertIn(pedro.popit_url, instance['persons'])
     
     def test_create_a_new_instance(self):
         instance_data = {
@@ -83,25 +82,6 @@ class InstanceResourceTestCase(ResourceTestCase):
         self.assertEquals(instance.name, instance_data['name'])
         self.assertEquals(instance.slug, instance_data['slug'])
         self.assertEquals(instance.owner, self.user)
-
-    @skipUnless(settings.LOCAL_POPIT, "No local popit running")
-    def test_create_a_new_instance_with_only_name(self):
-        instance_data = {
-            'name' : 'The instance'
-        }
-        url = '/api/v1/instance/'
-        response = self.api_client.post(url, data = instance_data, format='json', authentication=self.get_credentials())
-        self.assertHttpCreated(response)
-        match_id = re.match(r'^http://testserver/api/v1/instance/(?P<id>\d+)/?', response['Location'])
-        self.assertIsNotNone(match_id)
-        instance_id = match_id.group('id')
-
-        instance = WriteItInstance.objects.get(id=instance_id)
-
-
-        self.assertEquals(instance.name, instance_data['name'])
-        self.assertEquals(instance.owner, self.user)
-        self.assertTrue(instance.slug)
     
     def test_does_not_create_a_user_if_not_logged(self):
         instance_data = {
@@ -111,30 +91,6 @@ class InstanceResourceTestCase(ResourceTestCase):
         url = '/api/v1/instance/'
         response = self.api_client.post(url, data = instance_data, format='json')
         self.assertHttpUnauthorized(response)
-
-    @skipUnless(settings.LOCAL_POPIT, "No local popit running")
-    def test_create_and_pull_people_from_a_popit_api(self):
-        #loading data into the popit-api
-        popit_load_data()
-
-        instance_data = {
-            'name' : 'The instance',
-            'slug': 'the-instance',
-            'popit-api': settings.TEST_POPIT_API_URL
-        }
-        url = '/api/v1/instance/'
-        response = self.api_client.post(url, data = instance_data, format='json', authentication=self.get_credentials())
-        self.assertHttpCreated(response)
-        match_id = re.match(r'^http://testserver/api/v1/instance/(?P<id>\d+)/?', response['Location'])
-
-        instance = WriteItInstance.objects.get(id=match_id.group('id'))
-        self.assertEquals(instance.persons.count(), 2)
-        #this should not break
-        raton = Person.objects.get(name=u'Ratón Inteligente')
-        fiera = Person.objects.get(name=u"Fiera Feroz")
-
-        self.assertIn(raton, [r for r in instance.persons.all()])
-        self.assertIn(fiera, [r for r in instance.persons.all()])
 
 
 class MessagesPerInstanceTestCase(ResourceTestCase):
@@ -200,12 +156,12 @@ class MessagesPerInstanceTestCase(ResourceTestCase):
         self.assertEquals(len(messages), 1)
         self.assertEquals(messages[0]['id'], self.message1.id)
 
-    def test_filter_by_persons_popit_id(self):
+    def test_filter_by_persons_id(self):
         url = '/api/v1/instance/%(writeitinstance_id)i/messages/' % {
             'writeitinstance_id' : self.writeitinstance.id
         }
         data = self.data
-        data['person__popit_id'] = self.pedro.popit_id
+        data['person__id'] = self.pedro.id
         response = self.api_client.get(url,data = data)
         self.assertValidJSONResponse(response)
         messages = self.deserialize(response)['objects']
@@ -213,12 +169,22 @@ class MessagesPerInstanceTestCase(ResourceTestCase):
         self.assertEquals(len(messages), 1)
         self.assertEquals(messages[0]['id'], self.message1.id)
 
+
+    def test_filter_by_persons_wrong_format_id(self):
+        url = '/api/v1/instance/%(writeitinstance_id)i/messages/' % {
+            'writeitinstance_id' : self.writeitinstance.id
+        }
+        data = self.data
+        data['person__id'] = "This is a text not an id"
+        response = self.api_client.get(url,data = data)
+        self.assertEquals(response.status_code, 404)
+
     def test_it_raises_error_404_when_filtering_by_someone_that_doesnot_exist(self):
         url = '/api/v1/instance/%(writeitinstance_id)i/messages/' % {
             'writeitinstance_id' : self.writeitinstance.id
         }
         data = self.data
-        data['person__popit_id'] = "this-thing-does-not-exist"
+        data['person__id'] = -1
         response = self.api_client.get(url,data = data)
         self.assertEquals(response.status_code, 404)
 
