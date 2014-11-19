@@ -18,7 +18,7 @@ from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse as original_reverse
 from django.forms.widgets import Select
 from ..forms import SelectSinglePersonField
-import simplejson as json
+import json
 
 class ContactTestCase(TestCase):
     def setUp(self):

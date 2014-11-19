@@ -2,7 +2,7 @@ from django.views.generic.edit import UpdateView, CreateView
 from .models import Contact
 from .forms import ContactUpdateForm, ContactCreateForm
 from django.http import HttpResponse
-import simplejson as json
+import json
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.core.urlresolvers  import reverse
